@@ -132,7 +132,6 @@ variable "alb_ip_address_type" {
 
 variable "alb_access_log_bucket" {
   description = "Bucket for storing access log for ALB."
-  default     = "skynet-tenant-accesslogs"
 }
 
 variable "alb_enable_access_log" {
