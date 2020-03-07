@@ -1,20 +1,29 @@
-variable "default_alb_example_resource_name_prefix" {
+variable "resource_name_prefix" {
 }
 
-variable "default_alb_example_vpc_id" {
+variable "vpc_id" {
 }
 
-variable "default_alb_example_subnet_ids" {
+variable "subnet_ids" {
   type = any
 }
 
-variable "default_alb_example_route53_zone_id" {
+variable "route53_zone_id" {
 }
 
-variable "default_alb_example_route53_record_name" {
+variable "route53_record_name" {
 }
 
-variable "default_alb_example_tags" {
+variable "tags" {
   type = any
+}
+
+variable "create_route53_record" {
+}
+
+variable "create_security_group" {
+}
+
+variable "alb_is_internal" {
 }
 

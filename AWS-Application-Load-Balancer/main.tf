@@ -1,17 +1,7 @@
 locals {
-  tg_arn = element(
-    coalescelist(aws_lb_target_group.this.*.arn, [var.tg_arn]),
-    0,
-  )
-
-  #sg_ids = "${concat(var.sg_ids, aws_security_group.this.*.id)}" 
-
-  sg_ids = split(
-    ",",
-    var.create_security_group ? join(",", aws_security_group.this.*.id) : join(",", var.sg_ids),
-  )
-  # sg_ids = "${split(",", var.execute_microservice && length(var.sg_ids) > 0  ? join(",", var.sg_ids) : join(",", aws_security_group.this.*.id))}"
-}
+  tg_arn = element(coalescelist(aws_lb_target_group.this.*.arn, [var.tg_arn]),0,)
+  sg_ids = split(",",var.create_security_group ? join(",", aws_security_group.this.*.id) : join(",", var.sg_ids),)
+       }
 
 ################
 # Target Group #
@@ -27,24 +17,14 @@ resource "aws_lb_target_group" "this" {
   dynamic "stickiness" {
     for_each = var.default_tg_stickiness
     content {
-      # TF-UPGRADE-TODO: The automatic upgrade tool can't predict
-      # which keys might be set in maps assigned here, so it has
-      # produced a comprehensive set here. Consider simplifying
-      # this after confirming which keys can be set in practice.
-
-      cookie_duration = lookup(stickiness.value, "cookie_duration", null)
-      enabled         = lookup(stickiness.value, "enabled", null)
-      type            = stickiness.value.type
+     cookie_duration = lookup(stickiness.value, "cookie_duration", null)
+     enabled         = lookup(stickiness.value, "enabled", null)
+     type            = stickiness.value.type
     }
   }
   dynamic "health_check" {
     for_each = var.default_tg_healthcheck
     content {
-      # TF-UPGRADE-TODO: The automatic upgrade tool can't predict
-      # which keys might be set in maps assigned here, so it has
-      # produced a comprehensive set here. Consider simplifying
-      # this after confirming which keys can be set in practice.
-
       enabled             = lookup(health_check.value, "enabled", null)
       healthy_threshold   = lookup(health_check.value, "healthy_threshold", null)
       interval            = lookup(health_check.value, "interval", null)
@@ -56,13 +36,7 @@ resource "aws_lb_target_group" "this" {
       unhealthy_threshold = lookup(health_check.value, "unhealthy_threshold", null)
     }
   }
-  tags = merge(
-    {
-      "Name" = format("%s-%s", var.resource_name_prefix, "TG")
-    },
-    var.tags,
-    var.default_tg_tags,
-  )
+  tags = merge({"Name" = format("%s-%s", var.resource_name_prefix, "TG")},var.tags,var.default_tg_tags,)
 }
 
 #################
@@ -72,20 +46,11 @@ resource "aws_security_group" "this" {
   count = var.execute_microservice && var.create_security_group ? 1 : 0
 
   name = format("%s-%s", var.resource_name_prefix, "ALB-SG")
-  description = format(
-    "Auto-generated Security Group for %s-%s",
-    var.resource_name_prefix,
-    "ALB",
-  )
+  description = format("Auto-generated Security Group for %s-%s",var.resource_name_prefix,"ALB",)
   vpc_id = var.vpc_id
   dynamic "ingress" {
     for_each = var.default_sg_ingress_rules
     content {
-      # TF-UPGRADE-TODO: The automatic upgrade tool can't predict
-      # which keys might be set in maps assigned here, so it has
-      # produced a comprehensive set here. Consider simplifying
-      # this after confirming which keys can be set in practice.
-
       cidr_blocks      = lookup(ingress.value, "cidr_blocks", null)
       description      = lookup(ingress.value, "description", null)
       from_port        = lookup(ingress.value, "from_port", null)
@@ -100,11 +65,6 @@ resource "aws_security_group" "this" {
   dynamic "egress" {
     for_each = var.default_sg_egress_rules
     content {
-      # TF-UPGRADE-TODO: The automatic upgrade tool can't predict
-      # which keys might be set in maps assigned here, so it has
-      # produced a comprehensive set here. Consider simplifying
-      # this after confirming which keys can be set in practice.
-
       cidr_blocks      = lookup(egress.value, "cidr_blocks", null)
       description      = lookup(egress.value, "description", null)
       from_port        = lookup(egress.value, "from_port", null)
@@ -116,13 +76,7 @@ resource "aws_security_group" "this" {
       to_port          = lookup(egress.value, "to_port", null)
     }
   }
-  tags = merge(
-    {
-      "Name" = format("%s-%s", var.resource_name_prefix, "ALB-SG")
-    },
-    var.tags,
-    var.default_sg_tags,
-  )
+  tags = merge({"Name" = format("%s-%s", var.resource_name_prefix, "ALB-SG")},var.tags,var.default_sg_tags,)
 }
 
 #######
@@ -131,17 +85,9 @@ resource "aws_security_group" "this" {
 resource "aws_lb" "this" {
   count = var.execute_microservice ? 1 : 0
 
-  name               = format("%s-%s", var.resource_name_prefix, "ALB")
-  internal           = var.alb_is_internal
-  load_balancer_type = "application"
-  # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
-  # force an interpolation expression to be interpreted as a list by wrapping it
-  # in an extra set of list brackets. That form was supported for compatibility in
-  # v0.11, but is no longer supported in Terraform v0.12.
-  #
-  # If the expression in the following list itself returns a list, remove the
-  # brackets to avoid interpretation as a list of lists. If the expression
-  # returns a single list item then leave it as-is and remove this TODO comment.
+  name                       = format("%s-%s", var.resource_name_prefix, "ALB")
+  internal                   = var.alb_is_internal
+  load_balancer_type         = "application"
   security_groups            = flatten([local.sg_ids])
   subnets                    = flatten(var.subnet_ids)
   idle_timeout               = var.alb_idle_timeout
@@ -152,13 +98,7 @@ resource "aws_lb" "this" {
     bucket  = var.alb_access_log_bucket
     enabled = var.alb_enable_access_log
   }
-  tags = merge(
-    {
-      "Name" = format("%s-%s", var.resource_name_prefix, "ALB")
-    },
-    var.tags,
-    var.alb_tags,
-  )
+  tags                       = merge({"Name" = format("%s-%s", var.resource_name_prefix, "ALB")},var.tags,var.alb_tags,)
 }
 
 #################
@@ -170,7 +110,6 @@ resource "aws_lb_listener" "http_listener" {
   load_balancer_arn = element(concat(aws_lb.this.*.arn, [""]), 0)
   port              = var.http_listener_port
   protocol          = var.http_listener_protocol
-
   default_action {
     type             = var.http_listener_default_action_type
     target_group_arn = local.tg_arn
@@ -188,7 +127,6 @@ resource "aws_lb_listener" "https_listener" {
   protocol          = var.https_listener_protocol
   ssl_policy        = var.https_listener_ssl_policy
   certificate_arn   = var.https_listener_certificate_arn
-
   default_action {
     type             = var.https_listener_default_action_type
     target_group_arn = local.tg_arn
