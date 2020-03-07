@@ -1,7 +1,24 @@
-# terraform
-How to use ALB Microservice
+# AWS ALB Terraform microservice
+
+Terraform module which creates ALB resources on AWS.
+
+These types of resources are supported:
+
+* [ALB](https://www.terraform.io/docs/providers/aws/r/lb.html)
+* [Target Group](https://www.terraform.io/docs/providers/aws/r/lb_target_group.html)
+* [Security Group](https://www.terraform.io/docs/providers/aws/r/security_group.html)
+* [HTTP/HTTPS Listener](https://www.terraform.io/docs/providers/aws/r/lb_listener_rule.html)
+* [Route53 Record](https://www.terraform.io/docs/providers/aws/r/route53_record.html)
 
 
+
+## Terraform versions Required
+
+Terraform 0.12.X
+
+## Usage
+
+```hcl
 module "private_alb_api" {
   source  = "tfeURL/SkyNet/skynet-application-load-balancer/aws"
   version = "2.0.5"
@@ -25,7 +42,29 @@ module "private_alb_api" {
   token      = var.token
 
 }
+```
 
-#create_route53_record = true/false            #true: Route53 will be created. false: Route53 will not be created
-#create_security_group  = true/false            #True: It will create default security group, But you have to pass ingress rule. False: You have to pass security group ID.
-#alb_is_internal        = true/false            #True: Internal ALB will be created with HTTP Listener , False: External ALB will be created with HTTPS Listener
+## ALB Microservice Scenarios
+
+This module supports three scenarios for creating ALB with multiple options. Each will be explained in further detail in the corresponding sections.
+
+* create_route53_record (true/false)
+    * `true  = Route53 record will be created`
+    * `false = Route 53 record will not be created `
+
+* create_security_group (true/false)
+    * `true  = It will create default security group, But you have to pass ingress rules`
+    * `false = Microservice will not create the SG, You have to pass security group ID`
+	
+* alb_is_internal (true/false)
+    * `true  = Internal ALB will be created with HTTP Listener`
+    * `false = External ALB will be created with HTTPS Listener`
+
+#Default values
+`create_security_group` default set to `true` , So you have to pass ingress rules.
+`create_route53_record` default set to `false` 
+`alb_is_internal`       default set to `true` Internal ALB will be created by default
+
+## Author
+
+Module is maintained by [Bharathi Anbazhagan](https://github.com/reachbharathia) 
