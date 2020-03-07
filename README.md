@@ -60,11 +60,24 @@ This module supports three scenarios for creating ALB with multiple options. Eac
     * `true  = Internal ALB will be created with HTTP Listener`
     * `false = External ALB will be created with HTTPS Listener`
 
-#Default values
+## Default values
+```hcl
 `create_security_group` default set to `true` , So you have to pass ingress rules.
-`create_route53_record` default set to `false` 
-`alb_is_internal`       default set to `true` Internal ALB will be created by default
+`create_route53_record` default set to `false`.
+`alb_is_internal`       default set to `true` Internal ALB will be created by default.
+```
 
 ## Author
 
 Module is maintained by [Bharathi Anbazhagan](https://github.com/reachbharathia) 
+
+## ALB Microservice Version
+```hcl
+
+v1.0.0 - Initial Release 
+
+```
+
+
+
+
